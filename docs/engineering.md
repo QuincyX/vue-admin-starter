@@ -27,7 +27,7 @@ pnpm install
 | `pnpm dev`              | 开发服务器（含 `/api` 本地鉴权 mock）                       |
 | `pnpm dev:proxy`        | 同源代理到真实后端，读取 `.env.proxy` 的 `API_PROXY_TARGET` |
 | `pnpm build`            | `type-check` + `vite build` 并行                            |
-| `pnpm build-only`       | 仅 Vite 构建（CI 已单独跑类型检查时用）                     |
+| `pnpm build-only`       | 仅 Vite 构建（`pnpm verify` 已单独跑类型检查时用）          |
 | `pnpm preview`          | 预览生产产物（端口 4173）                                   |
 | `pnpm type-check`       | `tsc`(TS7) 检查 .ts/配置 + `vue-tsc`(TS6 API) 检查 SFC      |
 | `pnpm test`             | 单测（run 模式）                                            |
@@ -137,9 +137,15 @@ pnpm install
 
 ## 9. CI 与部署
 
-### CI
+### CI（已移除）
 
-[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) 顺序：文档链接 → 格式 → Lint（含组件结构）→ 发布脚本语法 → 类型检查 → 单测 → 构建 → PWA 产物断言 → Playwright E2E（`CI=true`，测试真实产物），失败时上传 Playwright 报告。
+本仓库不配置 GitHub Actions：2026-11-23 移除了 `.github/workflows/ci.yml` 与 `.github/dependabot.yml`，并关闭了仓库的 Actions 开关。质量门禁统一由本地执行的 `pnpm verify`（涉及交互/路由/权限/主题/持久化时再加 `pnpm test:e2e`）承担，顺序见 [§4](#4-完整质量门禁)。
+
+原先由 CI 代跑的两条脚本语法检查改为发布前手工执行：
+
+```bash
+bash -n deploy/build.sh && bash -n deploy/publish.sh
+```
 
 ### 构建与发布
 

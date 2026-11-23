@@ -35,7 +35,7 @@
 | [docs/framework-changelog.md](./docs/framework-changelog.md) | 非业务层框架变更的追加式记录                  |
 
 > **硬性约束：任何非业务层的框架功能变更，都必须在同一次变更中更新 [框架变更记录](./docs/framework-changelog.md)，并按 [文档更新矩阵](./AGENTS.md#31-强制文档更新矩阵) 更新受影响的文档。没有同步文档的框架变更视为未完成。**
-> CI 会通过 `pnpm docs:check` 校验关键文档存在性和相对链接。
+> 提交前跑 `pnpm verify`；其中 `pnpm docs:check` 校验关键文档存在性和相对链接。
 
 ## 快速开始
 
@@ -85,7 +85,7 @@ pnpm preview
 - **系统设置**：账号资料、登录密码、主题（浅色/深色/跟随系统）、后端连接检测、演示数据重置与关于信息。
 - **审计写入**：登录、退出、成员增删改、设置修改、导出与重置都会追加一条审计记录（演示用前端写入，生产必须服务端写入）。
 - **外观**：shadcn-vue 设计 Token（oklch）驱动明暗主题，`index.html` 内联脚本消除首屏闪烁。
-- **工程化**：严格 TypeScript（含 `noUncheckedIndexedAccess`）、ESLint + Oxlint + Prettier、Vitest、Playwright、GitHub Actions、可复现发布脚本。
+- **工程化**：严格 TypeScript（含 `noUncheckedIndexedAccess`）、ESLint + Oxlint + Prettier、Vitest、Playwright、可复现发布脚本。
 
 ## 技术栈
 
@@ -133,7 +133,7 @@ pnpm type-check            # TS7 检查 .ts / 配置，vue-tsc 使用 TS6 API �
 
 ```text
 .
-├── .github/workflows/ci.yml     # 文档、格式、Lint、类型、单测、构建、E2E
+├── .github/pull_request_template.md
 ├── AGENTS.md                    # Agent 协作硬性规则
 ├── deploy/                      # 可复现构建、S3 发布、Nginx 示例
 ├── docs/                        # 架构、工程、数据适配、组件契约、变更记录、截图
@@ -201,7 +201,7 @@ $env:PLAYWRIGHT_CHANNEL = "msedge"   # 或 "chrome"
 pnpm test:e2e
 ```
 
-CI 中设置 `CI=true` 后，Playwright 使用 `pnpm preview` 测试真实生产产物。
+设置 `CI=true`（PowerShell：`$env:CI='true'`）后，Playwright 使用 `pnpm preview` 测试真实生产产物。
 
 ## 鉴权与权限
 
@@ -303,7 +303,7 @@ export const memberRepository = restRepository<Member, MemberDraft>({
 
 - **单元/组件测试（105 个）**：权限表与导航一致性、路由守卫（登录回跳、403、外部 redirect 拒绝）、`useResourceList`（搜索/筛选/排序/分页/选择/URL 往返/越界回退）、成员 Store（唯一邮箱、owner 规则、审计写入、重置权限）、审计 Store、DataTable（`aria-sort`、选择、空状态、骨架）、Repository 三适配器契约、HTTP 拦截器、信封解包、日期/数字/CSV、Design Token 扫描。
 - **端到端测试（33 个，按域拆分）**：`auth`（回跳、错误凭据、会话保持、退出、演示账号填充、表单校验）、`rbac`（导航隐藏、403、只读表格、权限矩阵）、`members`（创建、搜索持久化、排序与 `aria-sort`、角色筛选、删除、分页）、`audit`（结果筛选、详情深链、日期范围、CSV 导出）、`dashboard`（KPI 与三张图表、区间切换、最近操作跳转）、`settings`（主题持久化、资料保存、后端检测、重置权限、密码校验）、`layout`（1440/1280 无横向溢出、侧边栏折叠持久化）。
-- **CI 顺序**：文档链接 → 格式 → Lint（含组件结构检查）→ 类型检查（TS7 + vue-tsc）→ 单测 → 构建 → Playwright E2E；失败时上传报告。
+- **门禁顺序**：文档链接 → 格式 → Lint（含组件结构检查）→ 类型检查（TS7 + vue-tsc）→ 单测 → 构建 → Playwright E2E。仓库不配置 GitHub Actions，`pnpm verify` + `pnpm test:e2e` 需在本地或发布机执行。
 
 ## 部署
 

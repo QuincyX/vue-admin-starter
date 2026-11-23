@@ -6,6 +6,35 @@
 
 ---
 
+## 2026-11-23 · 移除 GitHub Actions 与 Dependabot 配置
+
+**类型**：框架（CI、依赖自动化、文档）
+
+**改了什么**
+
+- 删除 `.github/workflows/ci.yml`（工作流 `CI`）与 `.github/dependabot.yml`（工作流 `Dependabot Updates`）；`.github/` 只保留 `pull_request_template.md`。
+- 通过 GitHub API 关闭仓库的 Actions 开关，并删除仓库已有的全部 Actions 运行记录。
+- 质量门禁改由本地 `pnpm verify`（必要时再跑 `pnpm test:e2e`）承担；原先 CI 代跑的两条 `bash -n` 脚本语法检查改为发布前手工执行。
+- `docs/engineering.md`：§3 命令表的 `build-only` 说明去掉 CI 前提；§9 的 `### CI` 改写为 `### CI（已移除）`。
+- `README.md`：删除 GitHub Actions / "CI 顺序"表述，结构树移除 workflow 行，`CI=true` 明确为 Playwright 的本地环境变量。
+
+**为什么**
+
+用户要求删除 GitHub Actions。Vue 两个 starter 的同源模板此前用过 Actions，本次统一收敛为"门禁只在本地/发布机执行"，不再维护 workflow 与 Dependabot 配置。
+
+**影响与迁移**
+
+- 推送不再触发任何自动化检查：门禁完全依赖提交者本地执行，没有服务端兜底。合并前必须人工确认 `pnpm verify`（涉及交互/路由/权限/主题/持久化时再加 `pnpm test:e2e`）已通过。
+- 依赖不再自动升级，改为人工定期检查：`pnpm outdated` 看差异，`pnpm up --latest` 升级。
+- 仓库 Actions 开关已关闭，以后即使重新添加 workflow 文件也不会运行，需先在仓库设置中重新启用。
+- 历史运行记录已删除且不可恢复；更早条目里的 CI 描述作为历史保留，不再是当前事实。
+
+**文档**：`README.md`、`docs/engineering.md`、本条记录。
+
+**验证**：`pnpm install --frozen-lockfile`、`pnpm verify`、`pnpm test:e2e` 通过；`gh workflow list` 与 `gh run list` 均为空。
+
+---
+
 ## 2026-11-23 · 依赖补齐到当前最新可用版本，包管理器升到 pnpm 12
 
 **类型**：框架（依赖、工具链、CI、部署）
@@ -15,7 +44,7 @@
 - 运行时依赖：`vue` 3.5.45 → 3.5.46、`@lucide/vue` 1.73.0 → 1.77.0。
 - 开发依赖：`vitest` / `@vitest/coverage-v8` 5.1.0 → 5.1.1、`oxlint` 与 `eslint-plugin-oxlint` 1.93.0 → 1.94.0（两包保持 lockstep：`eslint-plugin-oxlint@1.94.0` 的 peer 要求 `oxlint ~1.94.0`）、`npm-run-all2` 9.0.4 → 9.1.0、`@types/node` 24.19.2 → 26.6.6。
 - 声明对齐到已安装版本（无实际版本变化）：`echarts` `^6.1.0`、`reka-ui` `^2.11.0`、`tailwind-merge` `^3.7.1`。
-- 包管理器：`packageManager` 11.28.5 → 12.21.0；`engines.pnpm` `>= 11` → `>= 12.21.0`；CI 的 `pnpm/action-setup` `version` 同步 12.21.0；`deploy/build.sh` 的 pnpm 下限从 11 改为 12。
+- 包管理器：`packageManager` 11.28.5 → 12.21.0；`engines.pnpm` `>= 11` → `>= 12.21.0`；CI 的 `pnpm/action-setup` `version` 同步 12.21.0（该工作流随后按当天"移除 GitHub Actions"条目删除）；`deploy/build.sh` 的 pnpm 下限从 11 改为 12。
 - `pnpm-lock.yaml` 由 pnpm 12 重写：新增 `packageManagerDependencies` / `configDependencies` 段，`lockfileVersion` 仍为 9.0。
 
 **为什么**
