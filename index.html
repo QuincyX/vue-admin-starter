@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Aurora Admin 是一个基于 Vue 3、Vite、TypeScript 与 shadcn-vue 的 Web 管理后台起始模板，内置 RBAC、路由守卫、图表、操作日志与通用数据表格。"
+    />
+    <meta name="theme-color" content="#fbfbfd" />
+    <!-- iOS ignores the manifest icons, so the PNG below and these flags are required. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Aurora Admin" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>Aurora Admin</title>
+    <script>
+      // Apply the saved theme before the first paint to avoid a flash of the wrong color scheme.
+      ;(() => {
+        try {
+          const mode = localStorage.getItem('aurora.theme.v1')
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isDark = mode === 'dark' || ((!mode || mode === 'system') && prefersDark)
+          document.documentElement.classList.toggle('dark', isDark)
+        } catch {
+          // Storage and matchMedia may be unavailable in hardened browser contexts.
+        }
+      })()
+    </script>
+    <style>
+      /*
+       * Static first-paint skeleton. It is painted before the entry bundle is
+       * parsed, so FCP no longer waits for Vue; `main.ts` mounts over it.
+       *
+       * Rules: layout-only (no copy that would need i18n), same tokens as the
+       * app, and no animation, so the swap cannot cause extra layout work.
+       */
+      html,
+      body {
+        margin: 0;
+        background: oklch(0.985 0.002 264);
+      }
+      html.dark,
+      html.dark body {
+        background: oklch(0.165 0.011 264);
+      }
+      .boot {
+        --boot-card: oklch(1 0 0);
+        --boot-muted: oklch(0.965 0.005 264);
+        --boot-border: oklch(0.905 0.005 264);
+        --boot-sidebar: oklch(0.975 0.003 264);
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 100dvh;
+        background: oklch(0.985 0.002 264);
+        box-sizing: border-box;
+      }
+      html.dark .boot {
+        --boot-card: oklch(0.205 0.013 264);
+        --boot-muted: oklch(0.255 0.013 264);
+        --boot-border: oklch(1 0 0 / 12%);
+        --boot-sidebar: oklch(0.15 0.011 264);
+        background: oklch(0.165 0.011 264);
+      }
+      @media (min-width: 1024px) {
+        .boot {
+          grid-template-columns: 264px 1fr;
+        }
+      }
+      .boot__aside {
+        display: none;
+        border-right: 1px solid var(--boot-border);
+        background: var(--boot-sidebar);
+        padding: 24px 16px;
+      }
+      @media (min-width: 1024px) {
+        .boot__aside {
+          display: block;
+        }
+      }
+      .boot__logo {
+        width: 132px;
+        height: 24px;
+        border-radius: 8px;
+        background: var(--boot-muted);
+      }
+      .boot__nav {
+        display: grid;
+        gap: 10px;
+        margin-top: 28px;
+      }
+      .boot__nav-row {
+        height: 36px;
+        border-radius: 10px;
+        background: var(--boot-muted);
+      }
+      .boot__main {
+        display: grid;
+        align-content: start;
+        gap: 20px;
+      }
+      .boot__bar {
+        display: flex;
+        height: 64px;
+        align-items: center;
+        gap: 12px;
+        padding: 0 24px;
+        border-bottom: 1px solid var(--boot-border);
+      }
+      .boot__crumb {
+        width: 120px;
+        height: 12px;
+        border-radius: 999px;
+        background: var(--boot-muted);
+      }
+      .boot__pill {
+        width: 96px;
+        height: 32px;
+        margin-left: auto;
+        border-radius: 999px;
+        background: var(--boot-muted);
+      }
+      .boot__body {
+        display: grid;
+        gap: 20px;
+        padding: 24px;
+      }
+      .boot__stats {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      @media (min-width: 1280px) {
+        .boot__stats {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      .boot__card {
+        display: grid;
+        gap: 12px;
+        padding: 20px;
+        border: 1px solid var(--boot-border);
+        border-radius: 16px;
+        background: var(--boot-card);
+      }
+      .boot__stat {
+        height: 76px;
+      }
+      .boot__chart {
+        height: 300px;
+      }
+      .boot__row {
+        height: 20px;
+        border-radius: 8px;
+        background: var(--boot-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="boot" aria-hidden="true" data-testid="boot-skeleton">
+        <div class="boot__aside">
+          <div class="boot__logo"></div>
+          <div class="boot__nav">
+            <div class="boot__nav-row"></div>
+            <div class="boot__nav-row"></div>
+            <div class="boot__nav-row"></div>
+            <div class="boot__nav-row"></div>
+          </div>
+        </div>
+        <div class="boot__main">
+          <div class="boot__bar">
+            <span class="boot__crumb"></span>
+            <span class="boot__pill"></span>
+          </div>
+          <div class="boot__body">
+            <div class="boot__stats">
+              <div class="boot__card boot__stat"></div>
+              <div class="boot__card boot__stat"></div>
+              <div class="boot__card boot__stat"></div>
+              <div class="boot__card boot__stat"></div>
+            </div>
+            <div class="boot__card boot__chart">
+              <span class="boot__row"></span>
+              <span class="boot__row"></span>
+              <span class="boot__row"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <noscript>
+      <p style="padding: 2rem; font-family: sans-serif">请启用 JavaScript 以使用 Aurora Admin。</p>
+    </noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

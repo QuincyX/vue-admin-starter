@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.app.json",
+
+  // Override to include only test files and clear exclusions.
+  // Application code imported in tests is automatically included via module resolution.
+  "include": ["src/**/__tests__/*", "env.d.ts"],
+  "exclude": [],
+
+  "compilerOptions": {
+    // Vitest 用 jsdom 环境，测试会 import 应用代码（包括 SFC），因此 lib 必须和应用一致。
+    // 留空（`[]`）会退到更旧的默认 lib：`Array.prototype.at`、`Intl` 等会报 TS2550，
+    // 而且只有"第一个导入 SFC 的测试"才会暴露，见 docs/framework-changelog.md 2026-11-16 记录。
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node", "jsdom"],
+
+    // `vue-tsc --build` produces a .tsbuildinfo file for incremental type-checking.
+    // Specified here to keep it out of the root directory.
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo"
+  }
+}
